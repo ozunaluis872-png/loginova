@@ -3,15 +3,15 @@ import 'package:provider/provider.dart';
 
 import '../providers/auth_provider.dart';
 
-/// Pantalla de inicio de sesión donde el usuario ingresa su correo y contraseña.
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+/// Pantalla para restablecer la contraseña de un usuario registrado por correo.
+class ForgotPasswordScreen extends StatefulWidget {
+  const ForgotPasswordScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final _correoController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -23,12 +23,12 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  /// Valida el formulario de login y navega a la pantalla principal si el inicio de sesión es exitoso.
-  Future<void> iniciarSesion() async {
+  /// Solicita al provider restablecer la contraseña y notifica al usuario.
+  Future<void> restablecer() async {
     if (!_formKey.currentState!.validate()) return;
 
     final auth = Provider.of<AuthProvider>(context, listen: false);
-    final ok = await auth.login(
+    final ok = await auth.resetPassword(
       _correoController.text.trim(),
       _passwordController.text,
     );
@@ -36,19 +36,26 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     if (ok) {
-      Navigator.pushReplacementNamed(context, '/home');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Contraseña restablecida. Inicia sesión.'),
+        ),
+      );
+      Navigator.pushReplacementNamed(context, '/');
       return;
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(auth.error ?? 'No se pudo iniciar sesión')),
+      SnackBar(
+        content: Text(auth.error ?? 'No se pudo restablecer la contraseña'),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Loginova')),
+      appBar: AppBar(title: const Text('Olvidé mi contraseña')),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Form(
@@ -57,7 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
-                'Ingresa con tu correo y contraseña registrados.',
+                'Ingresa tu correo y una nueva contraseña.',
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
@@ -83,15 +90,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 controller: _passwordController,
                 obscureText: true,
                 decoration: const InputDecoration(
-                  labelText: 'Contraseña',
+                  labelText: 'Nueva contraseña',
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Ingresa tu contraseña';
+                    return 'Ingresa una contraseña';
                   }
-                  if (value.length < 6) {
-                    return 'La contraseña debe tener al menos 6 caracteres';
+                  if (value.length < 8) {
+                    return 'La contraseña debe tener al menos 8 caracteres';
                   }
                   return null;
                 },
@@ -102,27 +109,20 @@ class _LoginScreenState extends State<LoginScreen> {
                   return SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: auth.cargando ? null : iniciarSesion,
+                      onPressed: auth.cargando ? null : restablecer,
                       child: Text(
-                        auth.cargando ? 'Ingresando...' : 'Iniciar sesión',
+                        auth.cargando
+                            ? 'Restableciendo...'
+                            : 'Restablecer contraseña',
                       ),
                     ),
                   );
                 },
               ),
               const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton(
-                    onPressed: () => Navigator.pushNamed(context, '/forgot'),
-                    child: const Text('Olvidé mi contraseña'),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.pushNamed(context, '/register'),
-                    child: const Text('Registrarse'),
-                  ),
-                ],
+              TextButton(
+                onPressed: () => Navigator.pushReplacementNamed(context, '/'),
+                child: const Text('Volver al login'),
               ),
             ],
           ),

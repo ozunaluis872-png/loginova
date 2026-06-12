@@ -9,6 +9,7 @@ import 'mapa_screen.dart';
 import 'perfil_screen.dart';
 import 'recogidas_screen.dart';
 
+/// Pantalla principal que muestra el dashboard y la navegación del usuario autenticado.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -20,11 +21,14 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+
+    /// Carga las recogidas cuando se inicializa la pantalla.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<RecogidaProvider>(context, listen: false).cargarRecogidas();
     });
   }
 
+  /// Cierra la sesión del usuario y lo redirige a la pantalla de login.
   Future<void> cerrarSesion() async {
     await Provider.of<AuthProvider>(context, listen: false).logout();
 
@@ -125,7 +129,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 20),
 
                   if (provider.error != null)
-                    Text(provider.error!, style: const TextStyle(color: Colors.red)),
+                    Text(
+                      provider.error!,
+                      style: const TextStyle(color: Colors.red),
+                    ),
 
                   Expanded(
                     child: GridView.count(
@@ -138,7 +145,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         DashboardCard(
                           titulo: 'Recogidas',
-                          valor: provider.cargando ? '...' : '${recogidas.length}',
+                          valor: provider.cargando
+                              ? '...'
+                              : '${recogidas.length}',
                           icono: Icons.local_shipping,
                         ),
 
@@ -167,7 +176,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const RecogidasScreen()),
+                        MaterialPageRoute(
+                          builder: (_) => const RecogidasScreen(),
+                        ),
                       );
                     },
 
@@ -197,7 +208,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const EvidenciaScreen()),
+                        MaterialPageRoute(
+                          builder: (_) => const EvidenciaScreen(),
+                        ),
                       );
                     },
 

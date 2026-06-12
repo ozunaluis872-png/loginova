@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// Pantalla que muestra la información del perfil del usuario autenticado.
 class PerfilScreen extends StatelessWidget {
   const PerfilScreen({super.key});
 

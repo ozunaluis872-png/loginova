@@ -1,3 +1,4 @@
+/// Modelo que representa un cliente en el sistema.
 class Cliente {
   final int id;
   final String nombre;
@@ -5,6 +6,7 @@ class Cliente {
   final String direccion;
   final String ciudad;
 
+  /// Constructor que requiere todos los campos de un cliente.
   Cliente({
     required this.id,
     required this.nombre,
@@ -13,6 +15,7 @@ class Cliente {
     required this.ciudad,
   });
 
+  /// Crea una instancia desde un JSON devuelto por el servidor.
   factory Cliente.fromJson(Map<String, dynamic> json) {
     return Cliente(
       id: json['id'],
@@ -23,6 +26,7 @@ class Cliente {
     );
   }
 
+  /// Convierte a JSON para usar en respuestas de la API.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -33,6 +37,7 @@ class Cliente {
     };
   }
 
+  /// Convierte a JSON para enviar al servidor (sin id).
   Map<String, dynamic> toRequestJson() {
     return {
       'nombre': nombre,

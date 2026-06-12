@@ -5,7 +5,9 @@ import 'package:http/http.dart' as http;
 import '../models/cliente.dart';
 import 'api_service.dart';
 
+/// Servicio que gestiona la comunicación con el backend para operaciones CRUD de clientes.
 class ClienteService {
+  /// Obtiene la lista completa de clientes del servidor.
   Future<List<Cliente>> obtenerClientes() async {
     final response = await http.get(
       Uri.parse('${ApiService.baseUrl}/clientes'),
@@ -20,6 +22,7 @@ class ClienteService {
     return data.map((item) => Cliente.fromJson(item)).toList();
   }
 
+  /// Crea un nuevo cliente en el servidor y retorna el cliente creado con ID.
   Future<Cliente> crearCliente(Cliente cliente) async {
     final response = await http.post(
       Uri.parse('${ApiService.baseUrl}/clientes'),

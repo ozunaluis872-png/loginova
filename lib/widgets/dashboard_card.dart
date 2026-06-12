@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 
+/// Widget que muestra una tarjeta del dashboard con titulo, valor e icono.
 class DashboardCard extends StatelessWidget {
+  /// Titulo descriptivo de la tarjeta.
   final String titulo;
+
+  /// Valor principal a mostrar en la tarjeta.
   final String valor;
+
+  /// Icono a mostrar en la tarjeta.
   final IconData icono;
 
   const DashboardCard({

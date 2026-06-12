@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// Pantalla que mostrará un mapa interactivo con las ubicaciones de las recogidas.
 class MapaScreen extends StatelessWidget {
   const MapaScreen({super.key});
 

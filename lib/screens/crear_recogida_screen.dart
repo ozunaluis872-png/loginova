@@ -23,12 +23,23 @@ class _CrearRecogidaScreenState extends State<CrearRecogidaScreen> {
   final observacionesController = TextEditingController();
   bool guardando = false;
 
+  final _formKey = GlobalKey<FormState>();
+
   Future<void> guardar() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
     setState(() => guardando = true);
 
     try {
       final auth = Provider.of<AuthProvider>(context, listen: false);
       final provider = Provider.of<RecogidaProvider>(context, listen: false);
+
+      if (auth.usuario == null) {
+        throw Exception('Sesion invalida');
+      }
+
       final cliente = await ClienteService().crearCliente(
         Cliente(
           id: 0,
@@ -39,12 +50,18 @@ class _CrearRecogidaScreenState extends State<CrearRecogidaScreen> {
         ),
       );
 
+      final cantidadPaquetes =
+          int.tryParse(paquetesController.text.trim()) ?? 0;
+      if (cantidadPaquetes < 0) {
+        throw Exception('Cantidad de paquetes invalida');
+      }
+
       final recogida = Recogida(
         id: 0,
         clienteId: cliente.id,
-        usuarioId: auth.usuario?.id ?? 1,
+        usuarioId: auth.usuario!.id,
         estado: 'Pendiente',
-        cantidadPaquetes: int.tryParse(paquetesController.text) ?? 0,
+        cantidadPaquetes: cantidadPaquetes,
         observaciones: observacionesController.text.trim(),
         evidencias: const [],
       );
@@ -84,80 +101,123 @@ class _CrearRecogidaScreenState extends State<CrearRecogidaScreen> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
 
-        child: Column(
-          children: [
-            TextField(
-              controller: clienteController,
-              decoration: const InputDecoration(
-                labelText: 'Cliente',
-                border: OutlineInputBorder(),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                controller: clienteController,
+                decoration: const InputDecoration(
+                  labelText: 'Cliente',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Ingresa el nombre del cliente';
+                  }
+                  return null;
+                },
               ),
-            ),
 
-            const SizedBox(height: 15),
+              const SizedBox(height: 15),
 
-            TextField(
-              controller: telefonoController,
-              decoration: const InputDecoration(
-                labelText: 'Telefono',
-                border: OutlineInputBorder(),
+              TextFormField(
+                controller: telefonoController,
+                decoration: const InputDecoration(
+                  labelText: 'Telefono',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Ingresa el telefono del cliente';
+                  }
+                  return null;
+                },
               ),
-            ),
 
-            const SizedBox(height: 15),
+              const SizedBox(height: 15),
 
-            TextField(
-              controller: direccionController,
-              decoration: const InputDecoration(
-                labelText: 'Direccion',
-                border: OutlineInputBorder(),
+              TextFormField(
+                controller: direccionController,
+                decoration: const InputDecoration(
+                  labelText: 'Direccion',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Ingresa la direccion';
+                  }
+                  return null;
+                },
               ),
-            ),
 
-            const SizedBox(height: 15),
+              const SizedBox(height: 15),
 
-            TextField(
-              controller: ciudadController,
-              decoration: const InputDecoration(
-                labelText: 'Ciudad',
-                border: OutlineInputBorder(),
+              TextFormField(
+                controller: ciudadController,
+                decoration: const InputDecoration(
+                  labelText: 'Ciudad',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Ingresa la ciudad';
+                  }
+                  return null;
+                },
               ),
-            ),
 
-            const SizedBox(height: 15),
+              const SizedBox(height: 15),
 
-            TextField(
-              controller: paquetesController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Cantidad de paquetes',
-                border: OutlineInputBorder(),
+              TextFormField(
+                controller: paquetesController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Cantidad de paquetes',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Ingresa la cantidad de paquetes';
+                  }
+                  final parsed = int.tryParse(value);
+                  if (parsed == null || parsed < 0) {
+                    return 'Ingresa un numero valido';
+                  }
+                  return null;
+                },
               ),
-            ),
 
-            const SizedBox(height: 15),
+              const SizedBox(height: 15),
 
-            TextField(
-              controller: observacionesController,
-              maxLines: 4,
-              decoration: const InputDecoration(
-                labelText: 'Observaciones',
-                border: OutlineInputBorder(),
+              TextFormField(
+                controller: observacionesController,
+                maxLines: 4,
+                decoration: const InputDecoration(
+                  labelText: 'Observaciones',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Ingresa una observacion';
+                  }
+                  return null;
+                },
               ),
-            ),
 
-            const SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-            SizedBox(
-              width: double.infinity,
+              SizedBox(
+                width: double.infinity,
 
-              child: ElevatedButton(
-                onPressed: guardando ? null : guardar,
+                child: ElevatedButton(
+                  onPressed: guardando ? null : guardar,
 
-                child: Text(guardando ? 'Guardando...' : 'Guardar Recogida'),
+                  child: Text(guardando ? 'Guardando...' : 'Guardar Recogida'),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

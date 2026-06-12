@@ -36,7 +36,16 @@ class _EvidenciaScreenState extends State<EvidenciaScreen> {
   Future<void> guardar() async {
     if (widget.recogidaId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Abre una recogida para agregar evidencia')),
+        const SnackBar(
+          content: Text('Abre una recogida para agregar evidencia'),
+        ),
+      );
+      return;
+    }
+
+    if (imagen == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Toma una foto antes de guardar')),
       );
       return;
     }
@@ -48,7 +57,7 @@ class _EvidenciaScreenState extends State<EvidenciaScreen> {
         Evidencia(
           id: 0,
           recogidaId: widget.recogidaId!,
-          fotoUrl: imagen?.path ?? '',
+          fotoUrl: imagen!.path,
           comentario: comentarioController.text.trim(),
         ),
       );

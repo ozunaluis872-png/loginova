@@ -3,32 +3,35 @@ import 'package:provider/provider.dart';
 
 import '../providers/auth_provider.dart';
 
-/// Pantalla de inicio de sesión donde el usuario ingresa su correo y contraseña.
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+/// Pantalla de registro para crear un nuevo usuario en el sistema.
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _nombreController = TextEditingController();
   final _correoController = TextEditingController();
   final _passwordController = TextEditingController();
 
   @override
   void dispose() {
+    _nombreController.dispose();
     _correoController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  /// Valida el formulario de login y navega a la pantalla principal si el inicio de sesión es exitoso.
-  Future<void> iniciarSesion() async {
+  /// Envía los datos de registro al provider y redirige al home si tiene éxito.
+  Future<void> registrar() async {
     if (!_formKey.currentState!.validate()) return;
 
     final auth = Provider.of<AuthProvider>(context, listen: false);
-    final ok = await auth.login(
+    final ok = await auth.register(
+      _nombreController.text.trim(),
       _correoController.text.trim(),
       _passwordController.text,
     );
@@ -41,14 +44,14 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(auth.error ?? 'No se pudo iniciar sesión')),
+      SnackBar(content: Text(auth.error ?? 'No se pudo registrar')),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Loginova')),
+      appBar: AppBar(title: const Text('Registrar usuario')),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Form(
@@ -56,11 +59,20 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
-                'Ingresa con tu correo y contraseña registrados.',
-                textAlign: TextAlign.center,
+              TextFormField(
+                controller: _nombreController,
+                decoration: const InputDecoration(
+                  labelText: 'Nombre',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Ingresa tu nombre';
+                  }
+                  return null;
+                },
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _correoController,
                 keyboardType: TextInputType.emailAddress,
@@ -88,10 +100,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Ingresa tu contraseña';
+                    return 'Ingresa una contraseña';
                   }
-                  if (value.length < 6) {
-                    return 'La contraseña debe tener al menos 6 caracteres';
+                  if (value.length < 8) {
+                    return 'La contraseña debe tener al menos 8 caracteres';
                   }
                   return null;
                 },
@@ -102,27 +114,18 @@ class _LoginScreenState extends State<LoginScreen> {
                   return SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: auth.cargando ? null : iniciarSesion,
+                      onPressed: auth.cargando ? null : registrar,
                       child: Text(
-                        auth.cargando ? 'Ingresando...' : 'Iniciar sesión',
+                        auth.cargando ? 'Registrando...' : 'Registrar',
                       ),
                     ),
                   );
                 },
               ),
               const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton(
-                    onPressed: () => Navigator.pushNamed(context, '/forgot'),
-                    child: const Text('Olvidé mi contraseña'),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.pushNamed(context, '/register'),
-                    child: const Text('Registrarse'),
-                  ),
-                ],
+              TextButton(
+                onPressed: () => Navigator.pushReplacementNamed(context, '/'),
+                child: const Text('Ya tengo cuenta'),
               ),
             ],
           ),
